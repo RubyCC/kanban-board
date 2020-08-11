@@ -134,9 +134,7 @@ function hideInputBox(column) {
 function rebuildArrays() {
   lists.forEach((list, li) => {
     listArrays[li] = [];
-    for(let i = 0; i < list.children.length; i++){
-      listArrays[li].push(list.children[i].textContent);
-    }
+    listArrays[li] = Array.from(list.children).map(i => i.textContent);
   });
   updateDOM();
 }
@@ -170,7 +168,6 @@ function drop(e){
   parent.appendChild(draggedItem);
   // Dragging complete
   dragging = false;
-  console.log(dragging);
   rebuildArrays();
 }
 
