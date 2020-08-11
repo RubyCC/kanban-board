@@ -87,10 +87,13 @@ function updateDOM() {
 
 // Add to column list, reset textbox
 function addToColumn(column) {
-  const itemText = addItems[column].textContent;
-  const selectedArray = listArrays[column];
-  selectedArray.push(itemText);
-  updateDOM();
+  if(addItems[column].textContent !== ''){
+    const itemText = addItems[column].textContent;
+    const selectedArray = listArrays[column];
+    selectedArray.push(itemText);
+    addItems[column].textContent = '';
+    updateDOM();
+  }
 }
 
 // Show add item input box
@@ -153,7 +156,11 @@ updateDOM();
 
 // Event listeners
 addBtns.forEach((addBtn, i) => {
+  // ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(0)
   addBtn.addEventListener('click', () => { showInputBox(i) } );
   saveItemBtns[i].addEventListener('click', () => { hideInputBox(i) } );
+  listColumns[i].addEventListener('drop', drop);
+  listColumns[i].addEventListener('dragover', allowDrop);
+  listColumns[i].addEventListener('dragenter', () => { dragEnter(i) });
 });
 
