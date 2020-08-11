@@ -48,7 +48,6 @@ function updateSavedColumns() {
     listArrays = [backlogListArray, progressListArray, completeListArray, onHoldListArray];
   }
   const arrayNames = ['backlog', 'progress', 'complete', 'onHold'];
-  console.log(listArrays);
 
   listArrays.forEach((listArray, i) => {
     localStorage.setItem(`${arrayNames[i]}Items`, JSON.stringify(listArray));
@@ -57,10 +56,6 @@ function updateSavedColumns() {
 
 // Create DOM Elements for each list item
 function createItemEl(columnEl, column, item, index) {
-  /* console.log('columnEl:', columnEl);
-  console.log('column:', column);
-  console.log('item:', item);
-  console.log('index:', index); */
   // List Item
   const listEl = document.createElement('li');
   listEl.classList.add('drag-item');
@@ -90,13 +85,35 @@ function updateDOM() {
   updateSavedColumns();
 }
 
+// Add to column list, reset textbox
+function addToColumn(column) {
+  const itemText = addItems[column].textContent;
+  const selectedArray = listArrays[column];
+  selectedArray.push(itemText);
+  updateDOM();
+}
+
+// Show add item input box
+function showInputBox(column) {
+  addBtns[column].style.visibility = 'hidden';
+  saveItemBtns[column].style.display = 'flex';
+  addItemContainers[column].style.display = 'flex';
+}
+
+// Hide item input box
+function hideInputBox(column) {
+  addBtns[column].style.visibility = 'visible';
+  saveItemBtns[column].style.display = 'none';
+  addItemContainers[column].style.display = 'none';
+  addToColumn(column);
+}
+
 // Allows arrays to reflect drag and drop items
 function rebuildArrays() {
   lists.forEach((list, li) => {
     listArrays[li] = [];
     for(let i = 0; i < list.children.length; i++){
       listArrays[li].push(list.children[i].textContent);
-      console.log(`after push, listarrays[${li}], `, listArrays[li]);
     }
   });
   updateDOM();
@@ -133,4 +150,10 @@ function drop(e){
 
 // On load
 updateDOM();
+
+// Event listeners
+addBtns.forEach((addBtn, i) => {
+  addBtn.addEventListener('click', () => { showInputBox(i) } );
+  saveItemBtns[i].addEventListener('click', () => { hideInputBox(i) } );
+});
 
