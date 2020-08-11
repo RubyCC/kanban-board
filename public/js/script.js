@@ -23,6 +23,7 @@ let lists = [backlogList, progressList, completeList, onHoldList];
 
 // Drag Functionality
 let draggedItem;
+let dragging = false;
 let currentColumn;
 
 
@@ -62,6 +63,9 @@ function createItemEl(columnEl, column, item, index) {
   listEl.textContent = item;
   listEl.draggable = true;
   listEl.setAttribute('ondragstart', 'drag(event)');
+  listEl.contentEditable = true;
+  listEl.id = index;
+  listEl.setAttribute('onfocusout', `updateItem(${index}, ${column})`);
   // Append
   columnEl.appendChild(listEl);
 
@@ -77,12 +81,27 @@ function updateDOM() {
   lists.forEach((list, i) => {
     list.textContent = '';
     listArrays[i].forEach((listItem, li) => {
-      createItemEl(list, 0, listItem, li);
+      createItemEl(list, i, listItem, li);
     });
   });
   // Run getSavedColumns only once, update localStorage
   updatedOnLoad = true;
   updateSavedColumns();
+}
+
+// Update item - delete if necessary, or update array value
+function updateItem(id, column) {
+  const selectedArray = listArrays[column];
+  const selectedColumnEl = listColumns[column].children;
+  if(!dragging){
+    if(!selectedColumnEl[id].textContent) {
+      selectedArray.splice(id, 1);
+    } else {
+      selectedArray[id] = selectedColumnEl[id].textContent;
+    }
+    console.log(selectedArray);
+    updateDOM();
+  }
 }
 
 // Add to column list, reset textbox
@@ -125,6 +144,7 @@ function rebuildArrays() {
 // When item starts dragging
 function drag(e) {
   draggedItem = e.target;
+  dragging = true;
 }
 
 // Column allows for item to drop
@@ -148,6 +168,9 @@ function drop(e){
   // Add item to column
   const parent = listColumns[currentColumn];
   parent.appendChild(draggedItem);
+  // Dragging complete
+  dragging = false;
+  console.log(dragging);
   rebuildArrays();
 }
 
@@ -156,11 +179,10 @@ updateDOM();
 
 // Event listeners
 addBtns.forEach((addBtn, i) => {
-  // ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(0)
-  addBtn.addEventListener('click', () => { showInputBox(i) } );
-  saveItemBtns[i].addEventListener('click', () => { hideInputBox(i) } );
-  listColumns[i].addEventListener('drop', drop);
-  listColumns[i].addEventListener('dragover', allowDrop);
-  listColumns[i].addEventListener('dragenter', () => { dragEnter(i) });
+  addBtn.setAttribute('onclick', `showInputBox(${i})`);
+  saveItemBtns[i].setAttribute('onclick', `hideInputBox(${i})`);
+  listColumns[i].setAttribute('ondrop', 'drop(event)');
+  listColumns[i].setAttribute('ondragover', 'allowDrop(event)');
+  listColumns[i].setAttribute('ondragenter', `dragEnter(${i})`);
 });
 
